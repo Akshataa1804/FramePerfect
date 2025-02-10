@@ -1,80 +1,51 @@
-import React, { useState } from 'react';
-import VideoUpload from './components/VideoUpload';
-import axios from 'axios';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import VideoPreview from "./components/VideoPreview";
+import Timeline from "./components/Timeline";
+import "./App.css";
 
 const App = () => {
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [videoURL, setVideoURL] = useState(null);
-  const [subtitles, setSubtitles] = useState('');
-  const [error, setError] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [videoURL, setVideoURL] = useState(""); // Stores uploaded video URL
+  const [subtitles, setSubtitles] = useState([]); // Stores subtitles
+  const [videoDuration, setVideoDuration] = useState(0); // Stores video duration
 
-  const handleFileUpload = (file) => {
-    console.log('Selected video file:', file);
-
-    setUploadProgress(0);
-    setError(null);
-    setIsUploading(true);
-    setVideoURL(URL.createObjectURL(file));
-
-    const formData = new FormData();
-    formData.append('video', file);
-
-    axios.post('http://127.0.0.1:8000/api/upload/', formData, {
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setUploadProgress(percentCompleted);
-      },
-    })
-    .then((response) => {
-      setIsUploading(false);
-      setSubtitles(response.data.transcription);
-      alert('Video uploaded and transcribed successfully!');
-    })
-    .catch((error) => {
-      setIsUploading(false);
-      console.error('Upload error:', error);
-      setError(error.response ? error.response.data : error.message);
+  // Function to update subtitle start time when dragged
+  const handleUpdateSubtitle = (index, newStart) => {
+    setSubtitles((prevSubtitles) => {
+      const updatedSubtitles = [...prevSubtitles];
+      updatedSubtitles[index] = { ...updatedSubtitles[index], start: newStart };
+      return updatedSubtitles;
     });
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '50px auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h2 style={{ textAlign: 'center' }}>Video Upload & Subtitle Generator</h2>
+    <Router>
+      <div className="app-container">
+        <Navbar />
+        <Sidebar onFileUpload={setVideoURL} />
 
-      <VideoUpload 
-        onFileUpload={handleFileUpload} 
-        uploadProgress={uploadProgress} 
-        isUploading={isUploading} 
-        error={error} 
-      />
-
-      {error && (
-        <div style={{ color: 'red', marginTop: '20px', textAlign: 'center' }}>
-          <p>Error: {error}</p>
+        <div className="content">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <VideoPreview videoURL={videoURL} setVideoDuration={setVideoDuration} />
+                  <Timeline
+                    subtitles={subtitles}
+                    videoDuration={videoDuration}
+                    onUpdateSubtitle={handleUpdateSubtitle}
+                  />
+                </>
+              }
+            />
+          </Routes>
         </div>
-      )}
-
-      {videoURL && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Uploaded Video:</h3>
-          <video width="100%" controls>
-            <source src={videoURL} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-
-          {subtitles && (
-            <div style={{ marginTop: '20px' }}>
-              <h3>Generated Subtitles:</h3>
-              <p style={{ background: '#f4f4f4', padding: '10px', borderRadius: '5px', whiteSpace: 'pre-wrap' }}>
-                {subtitles}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      </div>
+    </Router>
   );
 };
 
-export default App;
+export default App; // ✅ Ensure default export is present

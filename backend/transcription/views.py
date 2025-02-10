@@ -1,40 +1,57 @@
-# transcription/views.py
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import VideoUpload
-from .serializers import VideoUploadSerializer
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.conf import settings
+from django.urls import reverse
 import whisper
-import tempfile
 import os
 
-# Load Whisper Model
+from .models import VideoUpload
+from .serializers import VideoUploadSerializer
+
+# Load Whisper Model (Only Once)
 model = whisper.load_model("base")
+
+class APIRootView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({
+            "upload_video": request.build_absolute_uri(reverse('upload_video')),
+        })
 
 class VideoUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
+        if 'video' not in request.FILES:
+            return Response({'error': 'No file uploaded'}, status=400)
+
         file_obj = request.FILES['video']
-        video_instance = VideoUpload(video=file_obj)
-        video_instance.save()
 
-        # Save video temporarily for processing
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        for chunk in file_obj.chunks():
-            temp_file.write(chunk)
-        temp_file.close()
+        # Save video using Django's storage
+        video_path = f"uploads/{file_obj.name}"
+        saved_path = default_storage.save(video_path, file_obj)
 
-        # Transcription with Whisper
-        result = model.transcribe(temp_file.name)
-        video_instance.transcription = result['text']
-        video_instance.save()
+        # Get full URL of saved video
+        video_url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
 
-        # Clean up
-        os.remove(temp_file.name)
+        # Run Whisper transcription
+        try:
+            result = model.transcribe(default_storage.path(saved_path))
+            transcription_text = result.get("text", "")
 
-        return Response({
-            'message': 'Video uploaded and transcribed successfully!',
-            'transcription': video_instance.transcription
-        })
+            # Save video details in the database
+            video_instance = VideoUpload.objects.create(
+                video=saved_path,
+                transcription=transcription_text
+            )
+
+            return Response({
+                "message": "Video uploaded successfully!",
+                "video_url": video_url,
+                "transcription": transcription_text
+            })
+
+        except Exception as e:
+            return Response({"error": f"Transcription failed: {str(e)}"}, status=500)
