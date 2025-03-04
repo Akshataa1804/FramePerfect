@@ -154,9 +154,9 @@ LOGGING = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Adjust based on your frontend URL
+    "http://localhost:5173",  # Vite default URL
+    "http://127.0.0.1:5173",
 ]
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -165,6 +165,6 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
-
+CORS_ALLOW_CREDENTIALS = True 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = list(default_headers) + ["content-disposition"]
