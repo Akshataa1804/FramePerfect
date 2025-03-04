@@ -85,34 +85,74 @@
   background-color: #7B68EE;
 }
 
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  width: 100%;
+/* Subtitles Container */
+.subtitles-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #4B0082; /* Dark Lavender */
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(75, 0, 130, 0.3);
 }
 
-.sidebar li {
+.subtitles-container h3 {
+  color: #C2A2DA; /* Light Lavender */
+  margin-bottom: 10px;
+}
+
+/* Subtitles List */
+.subtitles-list {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+/* Subtitle Item */
+.subtitle-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.subtitle-timestamp {
+  color: #FFD700; /* Gold */
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.subtitle-text {
+  color: white;
+  font-size: 16px;
+}
+
+/* Sidebar Menu */
+.sidebar ul li {
   padding: 12px;
   margin: 10px 0;
   text-align: center;
   cursor: pointer;
   border-radius: 6px;
-  background-color: #E6E6FA;
+  background-color: #E6E6FA; /* Light Lavender */
   transition: 0.3s;
 }
 
-.sidebar li:hover,
-.sidebar .active {
-  background-color: #C2A2DA;
+.sidebar ul li:hover,
+.sidebar ul li.active {
+  background-color: #C2A2DA; /* Medium Lavender */
   color: white;
 }
+
 /* Video Container */
 .video-container {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
   padding: 20px;
+  background-color: #f5f5f5; /* Light background for contrast */
 }
 
 /* Video Box */
@@ -125,7 +165,7 @@
   box-shadow: 4px 4px 10px rgba(179, 43, 216, 0.2);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* Align content to the top */
   align-items: center;
   text-align: center;
 }
@@ -133,16 +173,17 @@
 .video-title {
   font-size: 20px;
   margin-bottom: 20px;
-  margin-top: 60px;
+  margin-top: 10px;
   color: #C2A2DA;
 }
 
 /* Video Player */
 .video-player {
-  width: 100%;
-  height: 100%;
+  width: 90%; /* Adjust width to fit within the video box */
+  height: 70%; /* Adjust height to fit within the video box */
   object-fit: cover;
   border-radius: 8px;
+  margin-bottom: 20px; /* Add spacing below the video */
 }
 
 /* Video Placeholder */
@@ -156,8 +197,7 @@
 
 /* Timeline Container */
 .timeline-container {
-  position: relative;
-  width: 100%;
+  width: 90%; /* Match the width of the video player */
   height: 120px; /* Increased height for more space */
   background: #4B0082; /* Dark Lavender */
   border-radius: 8px;
@@ -165,7 +205,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 2px 2px 8px rgba(75, 0, 130, 0.3);
-   /* Disable horizontal scrolling */
+  margin-top: 20px; /* Add spacing above the timeline */
 }
 
 /* Waveform Container */
@@ -174,7 +214,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: 100px;
+  height: 80px; /* Adjust height for the waveform */
   width: 100%;
   background: transparent;
   gap: 2rem;
@@ -183,7 +223,8 @@
 /* Waveform */
 .waveform {
   width: 100%;
-  height: 90px;
+  height: 100%; /* Take full height of the container */
+  background-color: rgba(255, 255, 255, 0.1); /* Add background for visibility */
 }
 
 /* Play Button */

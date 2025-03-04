@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import WaveSurfer from "wavesurfer.js";
 import "../App.css";
 
-const VideoPreview = ({ videoURL }) => {
+const VideoPreview = ({ videoURL, subtitles }) => {
   const [playing, setPlaying] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
   const waveformRef = useRef(null);
@@ -112,6 +112,17 @@ const VideoPreview = ({ videoURL }) => {
     return number.toString().padStart(length, "0");
   };
 
+  // Function to format subtitles into WebVTT format
+  const formatSubtitlesToVTT = (subtitles) => {
+    let vttContent = "WEBVTT\n\n";
+    subtitles.forEach((subtitle) => {
+      vttContent += `${subtitle.id}\n`;
+      vttContent += `${subtitle.start} --> ${subtitle.end}\n`;
+      vttContent += `${subtitle.text}\n\n`;
+    });
+    return vttContent;
+  };
+
   return (
     <div className="video-container">
       <div className="video-box">
@@ -120,6 +131,17 @@ const VideoPreview = ({ videoURL }) => {
           <>
             <video className="video-player" controls>
               <source src={videoURL} type="video/mp4" />
+              {subtitles && subtitles.length > 0 && (
+                <track
+                  src={URL.createObjectURL(
+                    new Blob([formatSubtitlesToVTT(subtitles)], { type: "text/vtt" })
+                  )}
+                  kind="subtitles"
+                  srcLang="en"
+                  label="English"
+                  default
+                />
+              )}
               Your browser does not support the video tag.
             </video>
 

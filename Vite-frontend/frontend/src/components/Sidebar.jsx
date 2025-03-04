@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
-const Sidebar = ({ onFileUpload }) => {
+const Sidebar = ({ onFileUpload, onGenerateSubtitles }) => {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("Upload");
   const [file, setFile] = useState(null);
@@ -43,17 +43,24 @@ const Sidebar = ({ onFileUpload }) => {
 
       console.log("Upload Response:", response.data);
 
-      if (response.data?.video_url) {
-        onFileUpload(response.data.video_url); // ✅ Update video preview
+      if (response.data?.video_url && response.data?.transcription) {
+        // Pass both videoURL and transcription to the parent component
+        onFileUpload(response.data.video_url, response.data.transcription);
         setUploadStatus("Upload Successful!");
       } else {
-        setUploadStatus("Upload failed. No video URL received.");
+        setUploadStatus("Upload failed. No video URL or transcription received.");
       }
     } catch (error) {
       console.error("Upload error:", error);
       setUploadStatus("Upload Failed. Please try again.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleGenerateSubtitles = () => {
+    if (onGenerateSubtitles) {
+      onGenerateSubtitles(); // Call the subtitle generation function
     }
   };
 
@@ -87,7 +94,12 @@ const Sidebar = ({ onFileUpload }) => {
           <li
             key={option}
             className={option === activeSection ? "active" : ""}
-            onClick={() => setActiveSection(option)}
+            onClick={() => {
+              setActiveSection(option);
+              if (option === "Generate Subtitles") {
+                handleGenerateSubtitles(); // Handle subtitle generation
+              }
+            }}
           >
             {option}
           </li>
